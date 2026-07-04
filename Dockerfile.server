@@ -17,7 +17,7 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 appuser
 
 COPY --from=base /app/apps/server/dist ./apps/server/dist
-COPY --from=base /app/apps/server/uploads ./apps/server/uploads
+RUN mkdir -p /app/apps/server/uploads && chown -R appuser:appuser /app/apps/server/uploads
 COPY --from=base /app/apps/server/package.json ./apps/server/
 COPY --from=base /app/packages ./packages
 COPY --from=base /app/node_modules ./node_modules
