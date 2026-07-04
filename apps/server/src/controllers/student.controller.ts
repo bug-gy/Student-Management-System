@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { Subject } from "../models/Subject.js";
 import { Student } from "../models/Student.js";
 import { StudyMaterial } from "../models/StudyMaterial.js";
 import { Assignment } from "../models/Assignment.js";
@@ -18,11 +19,9 @@ export const getEnrolledSubjects = asyncHandler(async (req: Request, res: Respon
     return;
   }
 
-  const subjects = await import("../models/Subject.js").then((m: typeof import("../models/Subject.js")) =>
-    m.Subject.find({ course: student.course, status: "active" })
-      .populate("assignedTeachers", "name")
-      .lean(),
-  );
+  const subjects = await Subject.find({ course: student.course, status: "active" })
+    .populate("assignedTeachers", "name")
+    .lean();
 
   res.json(ApiResponse.success(subjects));
 });
@@ -183,8 +182,6 @@ export const getFeedbackForms = asyncHandler(async (req: Request, res: Response)
     .populate("targetTeacher", "name")
     .lean();
 
-  const studentId = req.user!.userId;
-
   const studentSubmissions = await FeedbackResponse.find({
     form: { $in: forms.map((f) => f._id) },
   }).lean();
@@ -199,10 +196,12 @@ export const getFeedbackForms = asyncHandler(async (req: Request, res: Response)
   res.json(ApiResponse.success(formsWithStatus));
 });
 
+import { FeedbackService } from "../services/feedback.service.js";
+
+const feedbackService = new FeedbackService();
+
 export const submitFeedback = asyncHandler(async (req: Request, res: Response) => {
-  const result = await import("../services/feedback.service.js").then((m: typeof import("../services/feedback.service.js")) =>
-    new m.FeedbackService().submitFeedback(req.params.formId!, req.body.answers!),
-  );
+  const result = await feedbackService.submitFeedback(req.params.formId!, req.body.answers!);
 
   res.status(201).json(ApiResponse.created(result, "Feedback submitted anonymously"));
 });

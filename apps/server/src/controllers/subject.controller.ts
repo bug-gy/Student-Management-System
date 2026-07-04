@@ -25,6 +25,11 @@ export const archiveSubject = asyncHandler(async (req: Request, res: Response) =
   res.json(ApiResponse.success(subject, "Subject archived"));
 });
 
+export const restoreSubject = asyncHandler(async (req: Request, res: Response) => {
+  const subject = await subjectService.restoreSubject(req.params.id!);
+  res.json(ApiResponse.success(subject, "Subject restored"));
+});
+
 export const assignTeachers = asyncHandler(async (req: Request, res: Response) => {
   const subject = await subjectService.assignTeachers(req.params.id!, req.body.teacherIds!);
   res.json(ApiResponse.success(subject, "Teachers assigned"));

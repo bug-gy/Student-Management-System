@@ -3,10 +3,17 @@ import { FeedbackResponse } from "../models/FeedbackResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 
 export class FeedbackService {
-  async listForms(query: { subject?: string; teacher?: string }) {
+  async listForms(query: { subject?: string; teacher?: string; status?: string }) {
     const filter: Record<string, unknown> = {};
     if (query.subject) filter.subject = query.subject;
     if (query.teacher) filter.targetTeacher = query.teacher;
+    if (query.status === "all") {
+      // show all
+    } else if (query.status === "archived") {
+      filter.isArchived = true;
+    } else {
+      filter.isArchived = { $ne: true };
+    }
 
     return FeedbackForm.find(filter)
       .populate("subject", "name code")
@@ -77,6 +84,26 @@ export class FeedbackService {
     });
 
     return { form, aggregated, totalResponses: responses.length };
+  }
+
+  async updateForm(id: string, data: Record<string, unknown>) {
+    if (data.openDate) data.openDate = new Date(data.openDate as string) as unknown as Date;
+    if (data.closeDate) data.closeDate = new Date(data.closeDate as string) as unknown as Date;
+    const form = await FeedbackForm.findByIdAndUpdate(id, data, { new: true });
+    if (!form) throw ApiError.notFound("Feedback form not found");
+    return form;
+  }
+
+  async archiveForm(id: string) {
+    const form = await FeedbackForm.findByIdAndUpdate(id, { isArchived: true }, { new: true });
+    if (!form) throw ApiError.notFound("Feedback form not found");
+    return form;
+  }
+
+  async restoreForm(id: string) {
+    const form = await FeedbackForm.findByIdAndUpdate(id, { isArchived: false }, { new: true });
+    if (!form) throw ApiError.notFound("Feedback form not found");
+    return form;
   }
 
   async exportResults(formId: string) {

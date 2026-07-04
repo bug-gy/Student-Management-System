@@ -15,6 +15,11 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
   UPLOAD_DIR: z.string().default("uploads"),
   MAX_FILE_SIZE: z.coerce.number().default(10 * 1024 * 1024),
+  SMTP_HOST: z.string().default(""),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_USER: z.string().default(""),
+  SMTP_PASS: z.string().default(""),
+  CLIENT_URL: z.string().default("http://localhost:5173"),
 });
 
 const parsed = envSchema.safeParse(process.env);

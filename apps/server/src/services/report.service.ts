@@ -1,5 +1,10 @@
 import { Attendance } from "../models/Attendance.js";
 import { Grade } from "../models/Grade.js";
+import { Course } from "../models/Course.js";
+import { Subject } from "../models/Subject.js";
+import { Student } from "../models/Student.js";
+import { Teacher } from "../models/Teacher.js";
+import { User } from "../models/User.js";
 
 export class ReportService {
   async getAttendanceSummary(courseId?: string, subjectId?: string) {
@@ -51,5 +56,51 @@ export class ReportService {
     ]);
 
     return report;
+  }
+
+  async getEnrollmentStats() {
+    const totalStudents = await Student.countDocuments({ status: "active" });
+    const totalTeachers = await Teacher.countDocuments({ status: "active" });
+    const totalCourses = await Course.countDocuments({ status: "active" });
+    const totalSubjects = await Subject.countDocuments({ status: "active" });
+
+    const courseEnrollment = await Student.aggregate([
+      { $match: { status: "active" } },
+      { $group: { _id: "$course", count: { $sum: 1 } } },
+      { $lookup: { from: "courses", localField: "_id", foreignField: "_id", as: "course" } },
+      { $unwind: { path: "$course", preserveNullAndEmptyArrays: true } },
+      { $project: { courseName: "$course.name", count: 1 } },
+      { $sort: { count: -1 } },
+    ]);
+
+    const roleDistribution = await User.aggregate([
+      { $group: { _id: "$role", count: { $sum: 1 } } },
+      { $project: { role: "$_id", count: 1, _id: 0 } },
+    ]);
+
+    return { totalStudents, totalTeachers, totalCourses, totalSubjects, courseEnrollment, roleDistribution };
+  }
+
+  async getTeacherWorkload() {
+    return Teacher.aggregate([
+      { $match: { status: "active" } },
+      {
+        $lookup: {
+          from: "subjects",
+          localField: "assignedSubjects",
+          foreignField: "_id",
+          as: "subjects",
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          email: 1,
+          subjectCount: { $size: "$subjects" },
+          subjects: "$subjects.name",
+        },
+      },
+      { $sort: { subjectCount: -1 } },
+    ]);
   }
 }

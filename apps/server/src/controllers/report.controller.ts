@@ -19,6 +19,16 @@ export const getGradeReport = asyncHandler(async (req: Request, res: Response) =
   res.json(ApiResponse.success(data));
 });
 
+export const getEnrollmentStats = asyncHandler(async (req: Request, res: Response) => {
+  const data = await reportService.getEnrollmentStats();
+  res.json(ApiResponse.success(data));
+});
+
+export const getTeacherWorkload = asyncHandler(async (req: Request, res: Response) => {
+  const data = await reportService.getTeacherWorkload();
+  res.json(ApiResponse.success(data));
+});
+
 export const getAuditLog = asyncHandler(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 50;

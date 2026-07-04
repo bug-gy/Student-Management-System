@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { parsePagination, getPaginationMeta } from "../utils/pagination.js";
 
 export class NoticeService {
-  async listNotices(query: { page?: string; limit?: string; target?: string }) {
+  async listNotices(query: { page?: string; limit?: string; target?: string; status?: string }) {
     const { skip, page, limit } = parsePagination(query);
     const filter: Record<string, unknown> = {};
 
@@ -11,7 +11,13 @@ export class NoticeService {
       filter["targetAudience.type"] = query.target;
     }
 
+    filter.status = query.status ?? "active";
     filter.publishDate = { $lte: new Date() };
+    filter.$or = [
+      { expiryDate: { $exists: false } },
+      { expiryDate: null },
+      { expiryDate: { $gte: new Date() } },
+    ];
 
     const [notices, total] = await Promise.all([
       Notice.find(filter)
@@ -49,7 +55,13 @@ export class NoticeService {
   }
 
   async deleteNotice(id: string) {
-    const notice = await Notice.findByIdAndDelete(id);
+    const notice = await Notice.findByIdAndUpdate(id, { status: "archived" }, { new: true });
+    if (!notice) throw ApiError.notFound("Notice not found");
+    return notice;
+  }
+
+  async restoreNotice(id: string) {
+    const notice = await Notice.findByIdAndUpdate(id, { status: "active" }, { new: true });
     if (!notice) throw ApiError.notFound("Notice not found");
     return notice;
   }

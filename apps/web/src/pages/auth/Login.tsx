@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -63,6 +63,11 @@ export const Login: React.FC = () => {
           <Button type="submit" className="w-full" isLoading={isLoading}>
             Sign In
           </Button>
+          <div className="text-center">
+            <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              Forgot Password?
+            </Link>
+          </div>
         </form>
       </div>
     </div>

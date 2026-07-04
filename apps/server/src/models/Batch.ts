@@ -5,6 +5,7 @@ export interface IBatch extends Document {
   year: number;
   section: string;
   label: string;
+  status: "active" | "archived";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,6 +16,7 @@ const batchSchema = new Schema<IBatch>(
     year: { type: Number, required: true },
     section: { type: String, required: true, trim: true },
     label: { type: String },
+    status: { type: String, enum: ["active", "archived"], default: "active" },
   },
   { timestamps: true },
 );

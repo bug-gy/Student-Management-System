@@ -1,4 +1,3 @@
-import { User } from "../models/User.js";
 import { Course } from "../models/Course.js";
 import { Subject } from "../models/Subject.js";
 import { Student } from "../models/Student.js";

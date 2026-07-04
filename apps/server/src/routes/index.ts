@@ -9,6 +9,8 @@ import noticeRoutes from "./notice.routes.js";
 import feedbackRoutes from "./feedback.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
 import reportRoutes from "./report.routes.js";
+import batchRoutes from "./batch.routes.js";
+import notificationRoutes from "./notification.routes.js";
 
 const router = Router();
 
@@ -22,5 +24,7 @@ router.use("/notices", noticeRoutes);
 router.use("/feedback", feedbackRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/reports", reportRoutes);
+router.use("/batches", batchRoutes);
+router.use("/notifications", notificationRoutes);
 
 export { router as routes };

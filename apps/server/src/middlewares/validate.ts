@@ -11,9 +11,9 @@ export const validate = (schema: ZodSchema, source: "body" | "query" | "params" 
     } catch (error) {
       if (error instanceof ZodError) {
         const errors = error.errors.map((e) => `${e.path.join(".")}: ${e.message}`);
-        throw ApiError.badRequest("Validation failed", errors);
+        return next(ApiError.badRequest("Validation failed", errors));
       }
-      throw error;
+      return next(error as Error);
     }
   };
 };

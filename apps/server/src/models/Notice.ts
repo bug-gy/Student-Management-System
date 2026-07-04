@@ -13,6 +13,7 @@ export interface INotice extends Document {
   publishDate: Date;
   expiryDate?: Date;
   createdBy: Types.ObjectId;
+  status: "active" | "archived";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,6 +31,7 @@ const noticeSchema = new Schema<INotice>(
     publishDate: { type: Date, default: Date.now },
     expiryDate: { type: Date },
     createdBy: { type: Schema.Types.ObjectId, ref: "Admin", required: true },
+    status: { type: String, enum: ["active", "archived"], default: "active" },
   },
   { timestamps: true },
 );

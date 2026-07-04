@@ -47,3 +47,20 @@ SMS/
 3. `/speckit.tasks` — Break into tasks
 4. `/speckit.implement` — Execute tasks
 5. `/speckit.converge` — Verify completion
+
+## Auto-Testing Protocol (MANDATORY)
+**Before reporting completion of any work, you MUST execute the full verification pipeline:**
+
+1. Run `npm run typecheck` — Fix ALL TypeScript errors. Zero tolerance.
+2. Run `npm run build` — Ensure both server and web compile without errors.
+3. Run `npm run lint` — Fix all lint errors (pre-existing config issues are acceptable but must be noted).
+4. Run a comprehensive functional review:
+   - Check every new/modified file for runtime errors (missing imports, wrong exports, incorrect API paths)
+   - Verify all API routes match between backend route definitions and frontend API calls
+   - Verify all Zod validators match what controllers expect
+   - Verify form state management, error handling, and edge cases (empty states, loading states, error states)
+   - Check for hardcoded URLs, environment-specific values, and insecure patterns
+   - Verify responsive design: test that UI components handle overflow, are usable on mobile widths
+5. Dependency audit: Check package.json files for version mismatches between related packages (e.g., React, TypeScript, Zod versions must be compatible across workspaces).
+
+**Failure of any step means the work is NOT complete.** Fix issues before reporting success.

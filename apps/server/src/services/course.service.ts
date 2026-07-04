@@ -4,7 +4,10 @@ import { ApiError } from "../utils/ApiError.js";
 import { parsePagination, getPaginationMeta } from "../utils/pagination.js";
 
 export class CourseService {
-  async listCourses(query: { status?: string; page?: string; limit?: string }): Promise<any> {
+  async listCourses(query: { status?: string; page?: string; limit?: string }): Promise<{
+    courses: unknown[];
+    pagination: { page: number; limit: number; total: number; totalPages: number };
+  }> {
     const { skip, page, limit } = parsePagination(query);
     const filter: Record<string, unknown> = {};
     if (query.status) filter.status = query.status;
@@ -47,6 +50,14 @@ export class CourseService {
 
   async archiveCourse(id: string) {
     const course = await Course.findByIdAndUpdate(id, { status: "archived" }, { new: true });
+    if (!course) {
+      throw ApiError.notFound("Course not found");
+    }
+    return course;
+  }
+
+  async restoreCourse(id: string) {
+    const course = await Course.findByIdAndUpdate(id, { status: "active" }, { new: true });
     if (!course) {
       throw ApiError.notFound("Course not found");
     }

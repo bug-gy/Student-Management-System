@@ -1,14 +1,16 @@
+import mongoose from "mongoose";
 import { Subject } from "../models/Subject.js";
 import { Teacher } from "../models/Teacher.js";
 import { ApiError } from "../utils/ApiError.js";
 import { parsePagination, getPaginationMeta } from "../utils/pagination.js";
 
 export class SubjectService {
-  async listSubjects(query: { course?: string; semester?: string; page?: string; limit?: string }) {
+  async listSubjects(query: { course?: string; semester?: string; page?: string; limit?: string; status?: string }) {
     const { skip, page, limit } = parsePagination(query);
     const filter: Record<string, unknown> = {};
     if (query.course) filter.course = query.course;
     if (query.semester) filter.semester = parseInt(query.semester);
+    filter.status = query.status ?? "active";
 
     const [subjects, total] = await Promise.all([
       Subject.find(filter)
@@ -53,6 +55,14 @@ export class SubjectService {
     return subject;
   }
 
+  async restoreSubject(id: string) {
+    const subject = await Subject.findByIdAndUpdate(id, { status: "active" }, { new: true });
+    if (!subject) {
+      throw ApiError.notFound("Subject not found");
+    }
+    return subject;
+  }
+
   async assignTeachers(subjectId: string, teacherIds: string[]) {
     const subject = await Subject.findById(subjectId);
     if (!subject) {
@@ -60,7 +70,7 @@ export class SubjectService {
     }
 
     const uniqueIds = [...new Set(teacherIds)];
-    subject.assignedTeachers = uniqueIds as any;
+    subject.assignedTeachers = uniqueIds as unknown as mongoose.Types.ObjectId[];
     await subject.save();
 
     await Teacher.updateMany(

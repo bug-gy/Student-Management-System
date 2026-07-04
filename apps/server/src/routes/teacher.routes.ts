@@ -3,6 +3,7 @@ import { auth } from "../middlewares/auth.js";
 import { rbac } from "../middlewares/rbac.js";
 import { validate } from "../middlewares/validate.js";
 import { upload } from "../middlewares/upload.js";
+import { ApiError } from "../utils/ApiError.js";
 import {
   getAssignedSubjects,
   getStudentsBySubject,
@@ -10,6 +11,7 @@ import {
   uploadMaterial,
   updateMaterial,
   deleteMaterial,
+  restoreMaterial,
   listAssignments,
   createAssignment,
   updateAssignment,
@@ -36,9 +38,14 @@ router.get("/subjects", getAssignedSubjects);
 router.get("/subjects/:subjectId/students", getStudentsBySubject);
 
 router.get("/materials", listMaterials);
-router.post("/materials", upload.single("file"), uploadMaterial);
+router.post("/materials", upload.single("file"), (req, _res, next) => {
+  if (!req.body.subject) return next(ApiError.badRequest("Subject is required"));
+  if (!req.body.title) return next(ApiError.badRequest("Title is required"));
+  next();
+}, uploadMaterial);
 router.put("/materials/:id", updateMaterial);
 router.delete("/materials/:id", deleteMaterial);
+router.put("/materials/:id/restore", restoreMaterial);
 
 router.get("/assignments", listAssignments);
 router.post("/assignments", validate(createAssignmentSchema), createAssignment);

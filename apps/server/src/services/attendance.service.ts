@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { Attendance } from "../models/Attendance.js";
-import { ApiError } from "../utils/ApiError.js";
 
 export class AttendanceService {
   async getAttendance(query: { subject?: string; date?: string; studentId?: string }) {

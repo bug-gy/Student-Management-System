@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import { connectDB } from "./config/db.js";
-import { env } from "./config/env.js";
 import { User } from "./models/User.js";
 
 const seed = async () => {

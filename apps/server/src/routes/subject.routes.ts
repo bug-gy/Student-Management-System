@@ -7,6 +7,7 @@ import {
   createSubject,
   updateSubject,
   archiveSubject,
+  restoreSubject,
   assignTeachers,
   removeTeacher,
   getTeachers,
@@ -19,6 +20,7 @@ router.get("/", listSubjects);
 router.post("/", auth, rbac("admin"), validate(createSubjectSchema), createSubject);
 router.put("/:id", auth, rbac("admin"), validate(updateSubjectSchema), updateSubject);
 router.delete("/:id", auth, rbac("admin"), archiveSubject);
+router.put("/:id/restore", auth, rbac("admin"), restoreSubject);
 
 router.post("/:id/teachers", auth, rbac("admin"), validate(assignTeacherSchema), assignTeachers);
 router.delete("/:id/teachers/:teacherId", auth, rbac("admin"), removeTeacher);

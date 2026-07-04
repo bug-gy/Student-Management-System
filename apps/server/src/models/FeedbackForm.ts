@@ -14,6 +14,7 @@ export interface IFeedbackForm extends Document {
   openDate: Date;
   closeDate: Date;
   createdBy: Types.ObjectId;
+  isArchived: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,6 +37,7 @@ const feedbackFormSchema = new Schema<IFeedbackForm>(
     openDate: { type: Date, required: true },
     closeDate: { type: Date, required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: "Admin", required: true },
+    isArchived: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

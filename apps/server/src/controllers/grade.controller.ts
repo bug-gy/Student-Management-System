@@ -19,7 +19,7 @@ export const createMarks = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getGradeSummary = asyncHandler(async (req: Request, res: Response) => {
-  const summary = await gradeService.getSummary(req.query.subject as string);
+  const summary = await gradeService.getSummary(req.query.subject as string, req.query.examType as string | undefined);
   res.json(ApiResponse.success(summary));
 });
 

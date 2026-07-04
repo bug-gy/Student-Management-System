@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: sms-mongodb
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - sms-network
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: sms-server
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    env_file:
+      - apps/server/.env
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/sms
+      - NODE_ENV=production
+    ports:
+      - "5000:5000"
+    volumes:
+      - uploads_data:/app/apps/server/uploads
+    networks:
+      - sms-network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: sms-web
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+    networks:
+      - sms-network
+
+volumes:
+  mongodb_data:
+  uploads_data:
+
+networks:
+  sms-network:
+    driver: bridge

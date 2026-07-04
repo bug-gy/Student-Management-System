@@ -41,8 +41,10 @@ export class GradeService {
     return { message: "Marks recorded", count: data.marks.length };
   }
 
-  async getSummary(subjectId: string) {
-    const grades = await Grade.find({ subject: subjectId }).lean();
+  async getSummary(subjectId: string, examType?: string) {
+    const filter: Record<string, unknown> = { subject: subjectId };
+    if (examType) filter.examType = examType;
+    const grades = await Grade.find(filter).lean();
     const scores = grades.map((g) => g.score);
 
     return {

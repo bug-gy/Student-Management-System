@@ -1,0 +1,28 @@
+FROM node:20-alpine AS base
+WORKDIR /app
+
+COPY package.json package-lock.json tsconfig.base.json turbo.json ./
+COPY apps/server/package.json apps/server/
+COPY apps/web/package.json apps/web/
+COPY packages/shared/package.json packages/shared/
+
+RUN npm ci --include-workspace-root
+
+COPY . .
+RUN npx turbo run build --filter=@sms/server...
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 appuser
+
+COPY --from=base /app/apps/server/dist ./apps/server/dist
+COPY --from=base /app/apps/server/uploads ./apps/server/uploads
+COPY --from=base /app/apps/server/package.json ./apps/server/
+COPY --from=base /app/packages ./packages
+COPY --from=base /app/node_modules ./node_modules
+
+USER appuser
+EXPOSE 5000
+ENV NODE_ENV=production
+CMD ["node", "apps/server/dist/index.js"]

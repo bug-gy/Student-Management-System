@@ -24,3 +24,8 @@ export const archiveCourse = asyncHandler(async (req: Request, res: Response) =>
   const course = await courseService.archiveCourse(req.params.id!);
   res.json(ApiResponse.success(course, "Course archived"));
 });
+
+export const restoreCourse = asyncHandler(async (req: Request, res: Response) => {
+  const course = await courseService.restoreCourse(req.params.id!);
+  res.json(ApiResponse.success(course, "Course restored"));
+});

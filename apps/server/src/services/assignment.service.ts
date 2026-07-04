@@ -44,13 +44,21 @@ export class AssignmentService {
   }
 
   async getSubmissions(assignmentId: string) {
+    const assignment = await Assignment.findById(assignmentId).lean();
+    if (!assignment) throw ApiError.notFound("Assignment not found");
+
+    const subject = await import("../models/Subject.js").then((m: typeof import("../models/Subject.js")) =>
+      m.Subject.findById(assignment.subject).lean(),
+    );
+
     const submissions = await Submission.find({ assignment: assignmentId })
       .populate("student", "name email rollNumber")
       .sort({ submittedAt: -1 })
       .lean();
 
     const allStudents = await import("../models/Student.js").then((m: typeof import("../models/Student.js")) =>
-      m.Student.find({}).select("_id name email").lean(),
+      m.Student.find(subject?.course ? { course: subject.course } : {})
+        .select("_id name email").lean(),
     );
 
     const submittedIds = submissions.map((s) => s.student._id.toString());

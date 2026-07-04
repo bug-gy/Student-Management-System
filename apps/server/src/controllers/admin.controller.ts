@@ -29,3 +29,8 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
   const result = await userService.resetPassword(req.params.id!, req.body.newPassword!);
   res.json(ApiResponse.success(result, "Password reset"));
 });
+
+export const bulkCreateUsers = asyncHandler(async (req: Request, res: Response) => {
+  const result = await userService.bulkCreateUsers(req.body.users);
+  res.status(201).json(ApiResponse.success(result, `Created ${result.created} users`));
+});

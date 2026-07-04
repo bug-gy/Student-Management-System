@@ -25,8 +25,9 @@ const userSchema = new Schema<IUser>(
 );
 
 userSchema.set("toJSON", {
-  transform: (_doc, ret) => {
-    const { password: _, ...rest } = ret;
+  transform(_doc, ret) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = ret;
     return rest;
   },
 });

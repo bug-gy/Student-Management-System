@@ -42,3 +42,15 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
   const user = await authService.getProfile(req.user!.userId);
   res.json(ApiResponse.success(user, "Profile fetched"));
 });
+
+export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.body;
+  await authService.forgotPassword(email);
+  res.json(ApiResponse.success(null, "If the email exists, a reset link has been sent"));
+});
+
+export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { token, password } = req.body;
+  await authService.resetPassword(token, password);
+  res.json(ApiResponse.success(null, "Password reset successful"));
+});

@@ -4,16 +4,15 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Subject } from "../models/Subject.js";
 import { Student } from "../models/Student.js";
 import { Teacher } from "../models/Teacher.js";
+import { NotificationService } from "../services/notification.service.js";
 import { MaterialService } from "../services/material.service.js";
 import { AssignmentService } from "../services/assignment.service.js";
 import { AttendanceService } from "../services/attendance.service.js";
-import { GradeService } from "../services/grade.service.js";
 
 const materialService = new MaterialService();
 const assignmentService = new AssignmentService();
 const attendanceService = new AttendanceService();
-const gradeService = new GradeService();
-
+const notificationService = new NotificationService();
 export const getAssignedSubjects = asyncHandler(async (req: Request, res: Response) => {
   const teacher = await Teacher.findById(req.user!.userId)
     .populate({
@@ -56,6 +55,20 @@ export const uploadMaterial = asyncHandler(async (req: Request, res: Response) =
     fileType: req.file.mimetype,
     fileSize: req.file.size,
   });
+
+  const subject = await Subject.findById(req.body.subject).lean();
+  if (subject) {
+    const students = await Student.find({ course: subject.course }).select("_id").lean();
+    const studentIds = students.map((s) => s._id.toString());
+    notificationService.createBulk({
+      recipients: studentIds,
+      type: "material",
+      title: "New Study Material",
+      message: `${material.title} has been uploaded`,
+      link: "/student/materials",
+    }).catch(() => {});
+  }
+
   res.status(201).json(ApiResponse.created(material));
 });
 
@@ -66,7 +79,12 @@ export const updateMaterial = asyncHandler(async (req: Request, res: Response) =
 
 export const deleteMaterial = asyncHandler(async (req: Request, res: Response) => {
   await materialService.deleteMaterial(req.params.id!);
-  res.json(ApiResponse.noContent());
+  res.json(ApiResponse.success(null, "Material archived"));
+});
+
+export const restoreMaterial = asyncHandler(async (req: Request, res: Response) => {
+  const material = await materialService.restoreMaterial(req.params.id!);
+  res.json(ApiResponse.success(material, "Material restored"));
 });
 
 export const listAssignments = asyncHandler(async (req: Request, res: Response) => {
@@ -79,6 +97,20 @@ export const createAssignment = asyncHandler(async (req: Request, res: Response)
     ...req.body,
     createdBy: req.user!.userId,
   });
+
+  const subject = await Subject.findById(req.body.subject).lean();
+  if (subject) {
+    const students = await Student.find({ course: subject.course }).select("_id").lean();
+    const studentIds = students.map((s) => s._id.toString());
+    notificationService.createBulk({
+      recipients: studentIds,
+      type: "assignment",
+      title: "New Assignment",
+      message: `${assignment.title} has been posted`,
+      link: "/student/assignments",
+    }).catch(() => {});
+  }
+
   res.status(201).json(ApiResponse.created(assignment));
 });
 

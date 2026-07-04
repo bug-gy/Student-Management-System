@@ -25,5 +25,10 @@ export const updateNotice = asyncHandler(async (req: Request, res: Response) => 
 
 export const deleteNotice = asyncHandler(async (req: Request, res: Response) => {
   await noticeService.deleteNotice(req.params.id!);
-  res.json(ApiResponse.noContent());
+  res.json(ApiResponse.success(null, "Notice archived"));
+});
+
+export const restoreNotice = asyncHandler(async (req: Request, res: Response) => {
+  const notice = await noticeService.restoreNotice(req.params.id!);
+  res.json(ApiResponse.success(notice, "Notice restored"));
 });

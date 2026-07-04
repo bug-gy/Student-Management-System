@@ -26,4 +26,9 @@ export const adminApi = {
     const { data } = await client.post(`/admin/users/${id}/reset-password`, { newPassword });
     return data;
   },
+
+  bulkCreateUsers: async (users: { name: string; email: string; password: string; role: string; course?: string; batch?: string }[]) => {
+    const { data } = await client.post<ApiResponse<{ created: number; skipped: number; errors: { email: string; error: string }[] }>>("/admin/users/bulk", { users });
+    return data;
+  },
 };

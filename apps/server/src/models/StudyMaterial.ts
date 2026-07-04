@@ -10,6 +10,7 @@ export interface IStudyMaterial extends Document {
   fileType: string;
   fileSize: number;
   downloadCount: number;
+  status: "active" | "archived";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +26,7 @@ const studyMaterialSchema = new Schema<IStudyMaterial>(
     fileType: { type: String, required: true },
     fileSize: { type: Number, required: true },
     downloadCount: { type: Number, default: 0 },
+    status: { type: String, enum: ["active", "archived"], default: "active" },
   },
   { timestamps: true },
 );
